@@ -54,13 +54,11 @@ class Tree {
       root.right = this.deleteNode(root.right, value);
     } else {
       if (root.left === null) {
-        let temp = root.right;
-        root = null;
-        return temp;
+        root = root.right;
+        return root;
       } else if (root.right === null) {
-        let temp = root.left;
-        root = null;
-        return temp;
+        root = root.left;
+        return root;
       }
       let succ = this.findMin(root.right);
 
@@ -100,4 +98,5 @@ const end = array.length - 1;
 const binary = new Tree(array);
 binary.buildTree(array, 0, end);
 binary.insert(555);
+binary.deleteNode(binary.root, 7);
 prettyPrint(binary.root);
