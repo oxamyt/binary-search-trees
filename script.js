@@ -43,6 +43,41 @@ class Tree {
 
     return root;
   }
+
+  deleteNode(root, value) {
+    if (root === null) {
+      return root;
+    }
+    if (root.data > value) {
+      root.left = this.deleteNode(root.left, value);
+    } else if (root.data < value) {
+      root.right = this.deleteNode(root.right, value);
+    } else {
+      if (root.left === null) {
+        let temp = root.right;
+        root = null;
+        return temp;
+      } else if (root.right === null) {
+        let temp = root.left;
+        root = null;
+        return temp;
+      }
+      let succ = this.findMin(root.right);
+
+      root.data = succ.data;
+
+      root.right = this.deleteNode(root.right, succ.data);
+    }
+
+    return root;
+  }
+
+  findMin(node) {
+    while (node.left !== null) {
+      node = node.left;
+    }
+    return node;
+  }
 }
 
 const prettyPrint = (node, prefix = "", isLeft = true) => {
