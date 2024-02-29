@@ -76,11 +76,117 @@ class Tree {
     }
     return node;
   }
+
+  find(value) {
+    const result = this.findRec(this.root, value);
+    if (result) {
+      console.log(result);
+    } else {
+      console.log(`There are no node with${value}`);
+    }
+  }
+
+  findRec(root, value) {
+    if (root.data === null) {
+      return null;
+    }
+    if (root.data < value) {
+      return this.findRec(root.right, value);
+    } else if (root.data > value) {
+      return this.findRec(root.left, value);
+    } else {
+      return root;
+    }
+  }
+
+  levelOrder(callback) {
+    if (this.root === null) {
+      return;
+    }
+    const values = [];
+    const queue = [];
+    queue.push(this.root);
+    while (queue.length !== 0) {
+      let current = queue[0];
+      if (current.left !== null) {
+        queue.push(current.left);
+      }
+      if (current.right !== null) {
+        queue.push(current.right);
+      }
+      if (callback) {
+        callback(current.data);
+      }
+      values.push(current.data);
+      queue.shift();
+    }
+    console.log(values);
+  }
+
+  values = [];
+
+  inOrder(callback) {
+    const values = [];
+    const traverse = (node) => {
+      if (node === null) {
+        return;
+      }
+      traverse(node.left);
+      if (typeof callback === "function") {
+        callback(node.data);
+      } else {
+        values.push(node.data);
+      }
+      traverse(node.right);
+    };
+    traverse(this.root);
+    console.log(values);
+    return values;
+  }
+
+  preOrder(callback) {
+    const values = [];
+
+    const traverse = (node) => {
+      if (node === null) {
+        return;
+      }
+      if (typeof callback === "function") {
+        callback(node.data);
+      } else {
+        values.push(node.data);
+      }
+      traverse(node.left);
+      traverse(node.right);
+    };
+    traverse(this.root);
+    console.log(values);
+    return values;
+  }
+
+  postOrder(callback) {
+    const values = [];
+    const traverse = (node) => {
+      if (node === null) {
+        return;
+      }
+      traverse(node.left);
+      traverse(node.right);
+      if (typeof callback === "function") {
+        callback(node.data);
+      } else {
+        values.push(node.data);
+      }
+    };
+    traverse(this.root);
+    console.log(values);
+    return values;
+  }
 }
 
 const prettyPrint = (node, prefix = "", isLeft = true) => {
   if (node === null) {
-    return;
+    return null;
   }
   if (node.right !== null) {
     prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
@@ -99,4 +205,6 @@ const binary = new Tree(array);
 binary.buildTree(array, 0, end);
 binary.insert(555);
 binary.deleteNode(binary.root, 7);
+binary.find(555);
+binary.postOrder();
 prettyPrint(binary.root);
