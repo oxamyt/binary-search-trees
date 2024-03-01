@@ -79,11 +79,7 @@ class Tree {
 
   find(value) {
     const result = this.findRec(this.root, value);
-    if (result) {
-      console.log(result);
-    } else {
-      console.log(`There are no node with${value}`);
-    }
+    return result;
   }
 
   findRec(root, value) {
@@ -114,16 +110,15 @@ class Tree {
       if (current.right !== null) {
         queue.push(current.right);
       }
-      if (callback) {
+      if (typeof callback === "function") {
         callback(current.data);
+      } else {
+        values.push(current.data);
       }
-      values.push(current.data);
       queue.shift();
     }
     console.log(values);
   }
-
-  values = [];
 
   inOrder(callback) {
     const values = [];
@@ -182,6 +177,50 @@ class Tree {
     console.log(values);
     return values;
   }
+
+  height(node) {
+    this.heightNode = 0;
+    this.heightRec(this.root, node);
+    console.log(this.heightNode);
+    return this.heightNode;
+  }
+
+  heightRec(root, node) {
+    if (root === null) {
+      return -1;
+    }
+
+    const leftHeight = this.heightRec(root.left, node);
+    const rightHeight = this.heightRec(root.right, node);
+
+    const currentHeight = Math.max(leftHeight, rightHeight) + 1;
+
+    if (root.data === node) {
+      this.heightNode = currentHeight;
+    }
+    return currentHeight;
+  }
+
+  depth(node) {
+    let result = this.depthRec(this.root, node);
+    console.log(result);
+    return result;
+  }
+
+  depthRec(root, node) {
+    if (root === null) {
+      return -1;
+    }
+    let depth = -1;
+    if (
+      root.data === node ||
+      (depth = this.depthRec(root.left, node)) >= 0 ||
+      (depth = this.depthRec(root.right, node)) >= 0
+    ) {
+      return depth + 1;
+    }
+    return depth;
+  }
 }
 
 const prettyPrint = (node, prefix = "", isLeft = true) => {
@@ -205,6 +244,5 @@ const binary = new Tree(array);
 binary.buildTree(array, 0, end);
 binary.insert(555);
 binary.deleteNode(binary.root, 7);
-binary.find(555);
-binary.postOrder();
+binary.depth(5);
 prettyPrint(binary.root);
