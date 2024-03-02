@@ -1,3 +1,4 @@
+// Node class
 class Node {
   constructor(data) {
     this.data = data;
@@ -6,12 +7,39 @@ class Node {
   }
 }
 
+// Tree class
 class Tree {
   constructor(array) {
     this.array = array;
     this.root = null;
   }
 
+  // Sorting method
+  mergeSort(array) {
+    if (array.length <= 1) {
+      return array;
+    }
+
+    const mid = Math.floor(array.length / 2);
+    const left = this.mergeSort(array.slice(0, mid));
+    const right = this.mergeSort(array.slice(mid));
+    return this.merge(left, right);
+  }
+
+  // Merge sorting helper func
+  merge(left, right) {
+    const mergedArray = [];
+
+    while (left.length > 0 && right.length > 0) {
+      const arrayMin = left[0] < right[0] ? left : right;
+      const mergeElement = arrayMin.shift();
+      mergedArray.push(mergeElement);
+    }
+
+    return mergedArray.concat(left, right);
+  }
+
+  // Building tree method
   buildTree(array, start, end) {
     if (start > end) {
       return null;
@@ -25,10 +53,12 @@ class Tree {
     return root;
   }
 
+  // Inserting value method
   insert(value) {
     this.root = this.insertRec(this.root, value);
   }
 
+  // Inserting value helper recursive method
   insertRec(root, value) {
     if (root === null) {
       root = new Node(value);
@@ -44,6 +74,7 @@ class Tree {
     return root;
   }
 
+  // Deleting node method
   deleteNode(root, value) {
     if (root === null) {
       return root;
@@ -70,6 +101,7 @@ class Tree {
     return root;
   }
 
+  // Finding min node fore deleting method
   findMin(node) {
     while (node.left !== null) {
       node = node.left;
@@ -77,11 +109,13 @@ class Tree {
     return node;
   }
 
+  // Finding node in tree method
   find(value) {
     const result = this.findRec(this.root, value);
     return result;
   }
 
+  // Finding recursive helper method
   findRec(root, value) {
     if (root.data === null) {
       return null;
@@ -95,6 +129,7 @@ class Tree {
     }
   }
 
+  // Lever Order Traversal
   levelOrder(callback) {
     if (this.root === null) {
       return;
@@ -117,9 +152,10 @@ class Tree {
       }
       queue.shift();
     }
-    console.log(values);
+    return values;
   }
 
+  // In Order traversal
   inOrder(callback) {
     const values = [];
     const traverse = (node) => {
@@ -135,10 +171,10 @@ class Tree {
       traverse(node.right);
     };
     traverse(this.root);
-    console.log(values);
     return values;
   }
 
+  // Pre Order traversal
   preOrder(callback) {
     const values = [];
 
@@ -155,10 +191,10 @@ class Tree {
       traverse(node.right);
     };
     traverse(this.root);
-    console.log(values);
     return values;
   }
 
+  // Post Order traversal
   postOrder(callback) {
     const values = [];
     const traverse = (node) => {
@@ -174,17 +210,17 @@ class Tree {
       }
     };
     traverse(this.root);
-    console.log(values);
     return values;
   }
 
+  // Finding height of node method
   height(node) {
     this.heightNode = 0;
     this.heightRec(this.root, node);
-    console.log(this.heightNode);
     return this.heightNode;
   }
 
+  // Finding height recursive helper method
   heightRec(root, node) {
     if (root === null) {
       return -1;
@@ -201,12 +237,13 @@ class Tree {
     return currentHeight;
   }
 
+  // Finding depth method
   depth(node) {
     let result = this.depthRec(this.root, node);
-    console.log(result);
     return result;
   }
 
+  // Finding depth recursive helper method
   depthRec(root, node) {
     if (root === null) {
       return -1;
@@ -220,6 +257,80 @@ class Tree {
       return depth + 1;
     }
     return depth;
+  }
+
+  // Checking if tree is balanced method
+  isBalanced() {
+    return this.checkBalance(this.root) !== -1;
+  }
+
+  // Helper method for checking if tree is balanced
+  checkBalance(node) {
+    if (node === null) {
+      return 0;
+    }
+
+    const leftHeight = this.checkBalance(node.left);
+    const rightHeight = this.checkBalance(node.right);
+    if (leftHeight === -1 || rightHeight === -1) {
+      return -1;
+    }
+
+    const balance = Math.abs(leftHeight - rightHeight);
+
+    if (balance > 1) {
+      return -1;
+    }
+
+    return Math.max(leftHeight, rightHeight) + 1;
+  }
+
+  // Rebalancing method
+  rebalance() {
+    let values = this.inOrder();
+    this.root = this.buildTree(values, 0, values.length - 1);
+  }
+
+  // Getting array of random numbers method
+  randomNumbers() {
+    const array = [];
+    for (let i = 0; i < 20; i++) {
+      let num = Math.random() * 100;
+      array.push(Math.round(num));
+    }
+    return this.mergeSort(array);
+  }
+
+  // Driver script
+  driverScript() {
+    const arrayDuplicates = this.randomNumbers();
+    const array = arrayDuplicates.filter(
+      (item, index) => arrayDuplicates.indexOf(item) === index
+    );
+
+    this.buildTree(array, 0, array.length - 1);
+
+    console.log(this.isBalanced());
+
+    console.log(this.levelOrder());
+    console.log(this.inOrder());
+    console.log(this.preOrder());
+    console.log(this.postOrder());
+
+    this.insert(121);
+    this.insert(129);
+    this.insert(105);
+    this.insert(102);
+
+    console.log(this.isBalanced());
+
+    this.rebalance();
+
+    console.log(this.isBalanced());
+    console.log(this.levelOrder());
+    console.log(this.inOrder());
+    console.log(this.preOrder());
+    console.log(this.postOrder());
   }
 }
 
@@ -236,13 +347,5 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
   }
 };
 
-const array = [1, 4, 5, 7, 8, 9, 23, 67, 6345];
-
-const end = array.length - 1;
-
-const binary = new Tree(array);
-binary.buildTree(array, 0, end);
-binary.insert(555);
-binary.deleteNode(binary.root, 7);
-binary.depth(5);
-prettyPrint(binary.root);
+const binary = new Tree();
+binary.driverScript();
