@@ -44,6 +44,7 @@ class Tree {
     if (start > end) {
       return null;
     }
+
     const mid = Math.floor((start + end) / 2);
     const root = new Node(array[mid]);
     root.left = this.buildTree(array, start, mid - 1);
@@ -54,35 +55,31 @@ class Tree {
   }
 
   // Inserting value method
-  insert(value) {
-    this.root = this.insertRec(this.root, value);
-  }
-
-  // Inserting value helper recursive method
-  insertRec(root, value) {
+  insert(value, root = this.root) {
+    // this.root = this.insertRec(this.root, value);
     if (root === null) {
       root = new Node(value);
       return root;
     }
 
     if (value < root.data) {
-      root.left = this.insertRec(root.left, value);
+      root.left = this.insert(value, root.left);
     } else if (value > root.data) {
-      root.right = this.insertRec(root.right, value);
+      root.right = this.insert(value, root.right);
     }
 
     return root;
   }
 
   // Deleting node method
-  deleteNode(root, value) {
+  deleteNode(value, root = this.root) {
     if (root === null) {
       return root;
     }
     if (root.data > value) {
-      root.left = this.deleteNode(root.left, value);
+      root.left = this.deleteNode(value, root.left);
     } else if (root.data < value) {
-      root.right = this.deleteNode(root.right, value);
+      root.right = this.deleteNode(value, root.right);
     } else {
       if (root.left === null) {
         root = root.right;
@@ -95,7 +92,7 @@ class Tree {
 
       root.data = succ.data;
 
-      root.right = this.deleteNode(root.right, succ.data);
+      root.right = this.deleteNode(succ.data, root.left);
     }
 
     return root;
@@ -110,20 +107,14 @@ class Tree {
   }
 
   // Finding node in tree method
-  find(value) {
-    const result = this.findRec(this.root, value);
-    return result;
-  }
-
-  // Finding recursive helper method
-  findRec(root, value) {
-    if (root.data === null) {
+  find(value, root = this.root) {
+    if (root === null) {
       return null;
     }
     if (root.data < value) {
-      return this.findRec(root.right, value);
+      return this.find(value, root.right);
     } else if (root.data > value) {
-      return this.findRec(root.left, value);
+      return this.find(value, root.left);
     } else {
       return root;
     }
@@ -154,6 +145,8 @@ class Tree {
     }
     return values;
   }
+
+  //  3 methods for depth-first traversal
 
   // In Order traversal
   inOrder(callback) {
@@ -215,44 +208,35 @@ class Tree {
 
   // Finding height of node method
   height(node) {
-    this.heightNode = 0;
-    this.heightRec(this.root, node);
-    return this.heightNode;
-  }
-
-  // Finding height recursive helper method
-  heightRec(root, node) {
-    if (root === null) {
-      return -1;
-    }
-
-    const leftHeight = this.heightRec(root.left, node);
-    const rightHeight = this.heightRec(root.right, node);
-
-    const currentHeight = Math.max(leftHeight, rightHeight) + 1;
-
-    if (root.data === node) {
-      this.heightNode = currentHeight;
-    }
-    return currentHeight;
+    let heightNode = 0;
+    const findHeight = (node, root = this.root) => {
+      if (root === null) {
+        return -1;
+      }
+      const leftHeight = findHeight(node, root.left);
+      const rightHeight = findHeight(node, root.right);
+      const currentHeight = Math.max(leftHeight, rightHeight) + 1;
+      if (root.data === node) {
+        heightNode = currentHeight;
+      }
+      return currentHeight;
+    };
+    findHeight(node);
+    return heightNode;
   }
 
   // Finding depth method
-  depth(node) {
-    let result = this.depthRec(this.root, node);
-    return result;
-  }
-
-  // Finding depth recursive helper method
-  depthRec(root, node) {
+  depth(node, root = this.root) {
+    // let result = this.depthRec(this.root, node);
+    // return result;
     if (root === null) {
       return -1;
     }
     let depth = -1;
     if (
       root.data === node ||
-      (depth = this.depthRec(root.left, node)) >= 0 ||
-      (depth = this.depthRec(root.right, node)) >= 0
+      (depth = this.depth(node, root.left)) >= 0 ||
+      (depth = this.depth(node, root.right)) >= 0
     ) {
       return depth + 1;
     }
@@ -261,52 +245,61 @@ class Tree {
 
   // Checking if tree is balanced method
   isBalanced() {
-    return this.checkBalance(this.root) !== -1;
-  }
+    // return this.checkBalance(this.root) !== -1;
+    const checkBalance = (root = this.root) => {
+      if (root === null) {
+        return 0;
+      }
 
-  // Helper method for checking if tree is balanced
-  checkBalance(node) {
-    if (node === null) {
-      return 0;
-    }
+      const leftHeight = checkBalance(root.left);
+      const rightHeight = checkBalance(root.right);
+      if (leftHeight === -1 || rightHeight === -1) {
+        return -1;
+      }
 
-    const leftHeight = this.checkBalance(node.left);
-    const rightHeight = this.checkBalance(node.right);
-    if (leftHeight === -1 || rightHeight === -1) {
-      return -1;
-    }
+      const balance = Math.abs(leftHeight - rightHeight);
 
-    const balance = Math.abs(leftHeight - rightHeight);
+      if (balance > 1) {
+        return -1;
+      }
 
-    if (balance > 1) {
-      return -1;
-    }
-
-    return Math.max(leftHeight, rightHeight) + 1;
+      return Math.max(leftHeight, rightHeight) + 1;
+    };
+    return checkBalance() !== -1;
   }
 
   // Rebalancing method
   rebalance() {
     let values = this.inOrder();
-    this.root = this.buildTree(values, 0, values.length - 1);
+    let sorted = this.mergeSort(values);
+    let sortedNoDuplicates = this.removeDuplicates(sorted);
+    this.root = this.buildTree(
+      sortedNoDuplicates,
+      0,
+      sortedNoDuplicates.length - 1
+    );
   }
 
   // Getting array of random numbers method
   randomNumbers() {
-    const array = [];
+    const arrayRandom = [];
     for (let i = 0; i < 20; i++) {
       let num = Math.random() * 100;
-      array.push(Math.round(num));
+      arrayRandom.push(Math.round(num));
     }
+    const array = this.removeDuplicates(arrayRandom);
     return this.mergeSort(array);
+  }
+
+  // Remove duplicates method
+  removeDuplicates(array) {
+    array = array.filter((item, index) => array.indexOf(item) === index);
+    return array;
   }
 
   // Driver script
   driverScript() {
-    const arrayDuplicates = this.randomNumbers();
-    const array = arrayDuplicates.filter(
-      (item, index) => arrayDuplicates.indexOf(item) === index
-    );
+    const array = this.randomNumbers();
 
     this.buildTree(array, 0, array.length - 1);
 
@@ -327,6 +320,7 @@ class Tree {
     this.rebalance();
 
     console.log(this.isBalanced());
+
     console.log(this.levelOrder());
     console.log(this.inOrder());
     console.log(this.preOrder());
@@ -347,5 +341,8 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
   }
 };
 
+// Testing
+
 const binary = new Tree();
 binary.driverScript();
+prettyPrint(binary.root);
