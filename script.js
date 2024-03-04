@@ -56,7 +56,6 @@ class Tree {
 
   // Inserting value method
   insert(value, root = this.root) {
-    // this.root = this.insertRec(this.root, value);
     if (root === null) {
       root = new Node(value);
       return root;
@@ -227,8 +226,6 @@ class Tree {
 
   // Finding depth method
   depth(node, root = this.root) {
-    // let result = this.depthRec(this.root, node);
-    // return result;
     if (root === null) {
       return -1;
     }
@@ -245,7 +242,6 @@ class Tree {
 
   // Checking if tree is balanced method
   isBalanced() {
-    // return this.checkBalance(this.root) !== -1;
     const checkBalance = (root = this.root) => {
       if (root === null) {
         return 0;
